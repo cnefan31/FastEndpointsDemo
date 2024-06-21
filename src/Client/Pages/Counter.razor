@@ -1,0 +1,38 @@
+﻿@page "/counter"
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+<p role="status">Event Time: @timeStamp</p>
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private int currentCount = 0;
+    private string timeStamp = string.Empty;
+
+    private async Task IncrementCount()
+    {
+        currentCount++;
+
+        try
+        {
+            var result = await new CreateOrderCommand
+                {
+                    OrderId = 1001,
+                    CustomerName = "Holly Simms"
+                }
+                .RemoteExecuteAsync();
+            if (result is not null)
+            {
+                Console.WriteLine(result.Message);
+                timeStamp = result.EventTime.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+}
