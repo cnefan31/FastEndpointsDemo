@@ -20,7 +20,7 @@
         {
             var result = await new CreateOrderCommand
                 {
-                    OrderId = 1001,
+                    OrderId = 1001 + currentCount,
                     CustomerName = "Holly Simms"
                 }
                 .RemoteExecuteAsync();

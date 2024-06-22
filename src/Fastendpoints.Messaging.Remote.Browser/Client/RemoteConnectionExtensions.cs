@@ -73,4 +73,43 @@ public static class RemoteConnectionExtensions
                 ? remote.ExecuteUnary(command, tCommand, options)
                 : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
     }
+
+
+    /// <summary>
+    /// execute the command on the relevant remote server and get back a stream of <typeparamref name="TResult" />
+    /// </summary>
+    /// <typeparam name="TResult">the type of the result stream</typeparam>
+    /// <param name="command"></param>
+    /// <param name="options">call options</param>
+    /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+    public static IAsyncEnumerable<TResult> RemoteExecuteAsync<TResult>(this IServerStreamCommand<TResult> command, CallOptions options = default) where TResult : class
+    {
+        var tCommand = command.GetType();
+
+        return
+            RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote)
+                ? remote.ExecuteServerStream(command, tCommand, options).ReadAllAsync(options.CancellationToken)
+                : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+    }
+
+    /// <summary>
+    /// send the stream of <typeparamref name="T" /> to the relevant remote server and get back a result of <typeparamref name="TResult" />
+    /// </summary>
+    /// <typeparam name="T">the type of item in the stream</typeparam>
+    /// <typeparam name="TResult">the type of the result that will be returned when the stream ends</typeparam>
+    /// <param name="commands">the stream to send</param>
+    /// <param name="options">call options</param>
+    /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+    public static Task<TResult> RemoteExecuteAsync<T, TResult>(this IAsyncEnumerable<T> commands, CallOptions options = default)
+        where T : class
+        where TResult : class
+    {
+        var tCommand = typeof(IAsyncEnumerable<T>);
+
+        return
+            RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote)
+                ? remote.ExecuteClientStream<T, TResult>(commands, tCommand, options)
+                : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+    }
+
 }

@@ -20,6 +20,8 @@ public class Program
         app.Services.MapRemote("http://localhost:8080", c =>
         {
             c.Register<CreateOrderCommand, CreateOrderResult>();
+            c.RegisterServerStream<StatusStreamCommand, StatusUpdate>();
+            c.RegisterClientStream<CurrentPosition, ProgressReport>();
         });
 
         await app.RunAsync();

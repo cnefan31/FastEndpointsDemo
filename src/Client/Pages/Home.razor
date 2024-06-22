@@ -1,7 +1,43 @@
 ﻿@page "/"
+@using System.Runtime.CompilerServices
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
+@if (messages is not null)
+{
+    foreach (var line in messages)
+    {
+        <li>@line</li>
+    }
+}
+
 Welcome to your new app.
+
+
+@code {
+    private List<string> messages = new List<string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        CancellationTokenSource source = new CancellationTokenSource();
+
+        var report = await GetDataStream(source.Token)
+                 .RemoteExecuteAsync<CurrentPosition, ProgressReport>(new(cancellationToken: source.Token));
+
+        async IAsyncEnumerable<CurrentPosition> GetDataStream([EnumeratorCancellation] CancellationToken ct)
+        {
+            var i = 0;
+            while (!ct.IsCancellationRequested && i < 5)
+            {
+                i++;
+                messages.Add(string.Format("{0} {1:D4}", DateTime.Now, i));
+                yield return new() { Number = i };
+                StateHasChanged();
+                // Console.WriteLine(i.ToString());
+                await Task.Delay(1000, ct);
+            }
+        }
+    }
+}

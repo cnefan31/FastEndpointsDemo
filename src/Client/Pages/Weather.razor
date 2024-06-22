@@ -41,6 +41,22 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        var iterator = new StatusStreamCommand
+            {
+                Id = 101
+            }.RemoteExecuteAsync(new(cancellationToken: new CancellationTokenSource(5000).Token));
+
+        var i = 1;
+        await foreach (var status in iterator)
+        {
+            // status.Message.Should().Be($"Id: {101} - {i}");
+            Console.WriteLine(status.Message);
+            i++;
+            if (i == 10)
+                break;
+        }
+        Console.WriteLine("start fetching weather data...");
+
         forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
     }
 

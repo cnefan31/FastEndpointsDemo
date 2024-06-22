@@ -17,6 +17,8 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
     static readonly MethodInfo _mapGrpcMethodInfo
         = typeof(GrpcEndpointRouteBuilderExtensions).GetMethod(nameof(GrpcEndpointRouteBuilderExtensions.MapGrpcService))!;
 
+    static readonly MethodInfo _enableGrpcWebMethodInfo = typeof(GrpcWebEndpointConventionBuilderExtensions).GetMethod(nameof(GrpcWebEndpointConventionBuilderExtensions.EnableGrpcWeb))!;
+
     internal HandlerOptions(IEndpointRouteBuilder builder)
     {
         _routeBuilder = builder;
@@ -38,7 +40,11 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
             var tService = typeof(VoidHandlerExecutor<,>).MakeGenericType(typeof(TCommand), tHandler);
             var mapMethod = _mapGrpcMethodInfo.MakeGenericMethod(tService);
 
-            return (GrpcServiceEndpointConventionBuilder)mapMethod.Invoke(null, [_routeBuilder])!;
+            var enableGrpcWebMethod = _enableGrpcWebMethodInfo.MakeGenericMethod(tService);
+
+            var builder  = (GrpcServiceEndpointConventionBuilder)mapMethod.Invoke(null, [_routeBuilder])!;
+            builder.EnableGrpcWeb();
+            return builder;
         }
 
         return _routeBuilder.MapGrpcService<VoidHandlerExecutor<TCommand, THandler>>().EnableGrpcWeb();

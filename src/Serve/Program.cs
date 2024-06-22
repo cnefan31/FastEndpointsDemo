@@ -1,31 +1,31 @@
+using NLog.Extensions.Logging;
+
 namespace Serve;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
         builder.AddHandlerServer();
-        builder.Services.AddCors(options =>
+        builder.Services.AddCors();
+        builder.Services.AddLogging(configure =>
         {
-            options.AddDefaultPolicy(policy =>
-            {
-                policy.WithOrigins("*")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-            });
+            configure.ClearProviders();
+            configure.AddNLog("nlog.config");
         });
-
         var app = builder.Build();
 
         app.UseGrpcWeb();
-        app.UseCors();
+        app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
         app.MapHandlers(h =>
         {
             h.Register<CreateOrderCommand, CreateOrderHandler, CreateOrderResult>();
+            h.RegisterServerStream<StatusStreamCommand, StatusUpdateHandler, StatusUpdate>();
+            h.RegisterClientStream<CurrentPosition, PositionProgressHandler, ProgressReport>();
         });
 
-        app.Run();
+        await app.RunAsync();
     }
 }

@@ -105,4 +105,39 @@ public sealed class RemoteConnection
                ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
                : ((IUnaryCommandExecutor<TResult>)executor).ExecuteUnary(cmd, opts);
 
+    /// <summary>
+    /// register a "server stream" command (<see cref="IServerStreamCommand{TResult}" />) for this remote connection where the handler for it is hosted/located.
+    /// </summary>
+    /// <typeparam name="TCommand">the type of the command</typeparam>
+    /// <typeparam name="TResult">the type of the result stream</typeparam>
+    public void RegisterServerStream<TCommand, TResult>() where TCommand : class, IServerStreamCommand<TResult> where TResult : class
+    {
+        var tCommand = typeof(TCommand);
+        RemoteMap[tCommand] = this;
+        _channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
+        _executorMap[tCommand] = new ServerStreamCommandExecutor<TCommand, TResult>(_channel);
+    }
+
+    internal IAsyncStreamReader<TResult> ExecuteServerStream<TResult>(IServerStreamCommand<TResult> cmd, Type tCommand, CallOptions opts) where TResult : class
+        => !_executorMap.TryGetValue(tCommand, out var executor)
+               ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
+               : ((IServerStreamCommandExecutor<TResult>)executor).ExecuteServerStream(cmd, opts);
+
+    /// <summary>
+    /// register a remote handler for a "client stream" (<see cref="IAsyncEnumerable{T}" />) for this remote connection.
+    /// </summary>
+    /// <typeparam name="T">the type of the items in the stream</typeparam>
+    /// <typeparam name="TResult">the type of the result that will be received when the stream ends</typeparam>
+    public void RegisterClientStream<T, TResult>() where T : class where TResult : class
+    {
+        var tCommand = typeof(IAsyncEnumerable<T>);
+        RemoteMap[tCommand] = this;
+        _channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
+        _executorMap[tCommand] = new ClientStreamCommandExecutor<T, TResult>(_channel);
+    }
+
+    internal Task<TResult> ExecuteClientStream<T, TResult>(IAsyncEnumerable<T> cmd, Type tCommand, CallOptions opts) where T : class where TResult : class
+        => !_executorMap.TryGetValue(tCommand, out var executor)
+               ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
+               : ((IClientStreamCommandExecutor<T, TResult>)executor).ExecuteClientStream(cmd, opts);
 }
