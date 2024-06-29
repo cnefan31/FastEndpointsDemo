@@ -9,20 +9,13 @@
         }
     },
     "profiles": {
-        "http": {
+        "Serve": {
             "commandName": "Project",
             "dotnetRunMessages": true,
             "launchBrowser": true,
-            "launchUrl": "weatherforecast",
-            "applicationUrl": "http://localhost:5092",
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            }
-        },
-        "IIS Express": {
-            "commandName": "IISExpress",
-            "launchBrowser": true,
-            "launchUrl": "weatherforecast",
+            "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
+            //"launchUrl": "",
+            //"applicationUrl": "http://localhost:8081",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }

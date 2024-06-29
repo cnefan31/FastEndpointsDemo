@@ -21,7 +21,7 @@
             var result = await new CreateOrderCommand
                 {
                     OrderId = 1001 + currentCount,
-                    CustomerName = "Holly Simms"
+                    CustomerName = "Blazor client"
                 }
                 .RemoteExecuteAsync();
             if (result is not null)

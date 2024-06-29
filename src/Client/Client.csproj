@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -7,13 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!--<PackageReference Include="FastEndpoints.Messaging.Remote.Core" Version="5.26.0.21-beta" />-->
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.6" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Contracts\Contracts.csproj" />
-    <ProjectReference Include="..\Fastendpoints.Messaging.Remote.Browser\Fastendpoints.Messaging.Remote.Browser.csproj" />
+    <ProjectReference Include="..\Messaging.Remote.Browser\FastEndpoints.Messaging.Remote.Browser.csproj" />
   </ItemGroup>
 
 </Project>
