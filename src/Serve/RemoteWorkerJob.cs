@@ -15,7 +15,8 @@ internal class RemoteWorkerJob : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        PeriodicTimer timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
+        PeriodicTimer timer = new PeriodicTimer(TimeSpan.FromSeconds(2));
+        int i = 1;
         while (!stoppingToken.IsCancellationRequested && await timer.WaitForNextTickAsync(stoppingToken))
         {
             CreateOrderCommand remoteCommand = new CreateOrderCommand();
@@ -23,11 +24,12 @@ internal class RemoteWorkerJob : BackgroundService
             {
                 //var result = await remoteCommand.RemoteExecuteAsync();
                 //Console.WriteLine(result.EventTime.ToString());
-                 new SomethingHappened
+                new SomethingHappened
                 {
-                    Id = 1,
+                    Id = i,
                     Description = "I am a test event!"
                 }.Broadcast(stoppingToken);
+                i++;
             }
             catch (Exception ex)
             {
