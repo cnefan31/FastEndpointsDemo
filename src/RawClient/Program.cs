@@ -1,6 +1,7 @@
 ﻿using Contracts;
+
 using FastEndpoints;
-using Microsoft.Extensions.Configuration;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -15,6 +16,7 @@ internal class Program
         host.MapRemote("http://localhost:8080", c =>
         {
             c.Register<CreateOrderCommand, CreateOrderResult>();
+            c.Subscribe<SomethingHappened, WhenSomethingHappens>();
         });
 
         await host.RunAsync();
@@ -40,12 +42,10 @@ internal class Program
                             // configure.ClearProviders();
                             // configure.AddNLog("nlog.config");
                         });
-                        services.AddHostedService<RemoteWorkerJob>();
+                        //services.AddHostedService<RemoteWorkerJob>();
                     })
                     .ConfigureAppConfiguration(app =>
                     {
-
-
                     });
 
         return builder;

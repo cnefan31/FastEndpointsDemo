@@ -47,7 +47,7 @@ public class Program
             h.Register<CreateOrderCommand, CreateOrderHandler, CreateOrderResult>();
             h.RegisterServerStream<StatusStreamCommand, StatusUpdateHandler, StatusUpdate>();
             h.RegisterClientStream<CurrentPosition, PositionProgressHandler, ProgressReport>();
-            h.RegisterEventHub<SomethingHappened>();
+            h.RegisterEventHub<SomethingHappened>(HubMode.EventPublisher);
         });
         app.MapFallbackToFile("index.html");
 
